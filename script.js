@@ -18,7 +18,7 @@
 ============================================================ */
 
 // ===== DATA =====
-const categories = { anime: 12, phrase: 12, laugh: 12, music: 12, game: 12 };
+const categories = { anime: 12, phrase: 12, Laugh: 12, Music: 12, game: 12 };
 
 let currentAudio   = null;
 let activeButton   = null;
