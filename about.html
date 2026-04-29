@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — SoundBoard X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 16px 32px;
+      gap: 24px;
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Card base ── */
+    .card {
+      width: 100%;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.55);
+      animation: cardIn 0.5s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Profile Card ── */
+    .profile-card {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      animation-delay: 0.05s;
+    }
+
+    .avatar {
+      width: 82px; height: 82px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--gold), #3a2800, var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      flex-shrink: 0;
+      box-shadow: 0 0 24px rgba(255,215,0,0.4);
+      animation: avatarSpin 10s linear infinite;
+    }
+
+    @keyframes avatarSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .profile-info { text-align: left; flex: 1; min-width: 0; }
+
+    .profile-name {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1px;
+      text-shadow: 0 0 16px rgba(255,215,0,0.35);
+    }
+
+    .profile-role {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-top: 5px;
+      letter-spacing: 0.4px;
+    }
+
+    .profile-uni {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 12px;
+      background: rgba(255,215,0,0.07);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      color: #ddd;
+    }
+
+    /* ── Project Card ── */
+    .project-card { animation-delay: 0.1s; text-align: left; }
+
+    .project-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .project-icon {
+      font-size: 26px;
+      filter: drop-shadow(0 0 8px rgba(255,215,0,0.5));
+    }
+
+    .project-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 1.5px;
+    }
+
+    .project-title span { color: var(--gold); }
+
+    .project-desc {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: #aaa;
+      line-height: 1.75;
+      border-left: 2px solid rgba(255,215,0,0.3);
+      padding-left: 14px;
+    }
+
+    /* ── Features Card ── */
+    .features-card { animation-delay: 0.2s; }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--gold);
+      text-align: left;
+      margin-bottom: 18px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .feature-item {
+      background: rgba(255,215,0,0.03);
+      border: 1px solid rgba(255,215,0,0.1);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      text-align: left;
+      transition: border-color 0.25s, box-shadow 0.2s, transform 0.2s;
+      animation: cardIn 0.45s ease both;
+    }
+
+    .feature-item:hover {
+      border-color: rgba(255,215,0,0.3);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      transform: translateY(-2px);
+    }
+
+    .feature-emoji {
+      font-size: 20px;
+      flex-shrink: 0;
+      line-height: 1.2;
+      filter: drop-shadow(0 0 3px rgba(255,215,0,0.3));
+    }
+
+    .feature-name {
+      font-family: var(--font-display);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .feature-desc {
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── Tech Card ── */
+    .tech-card { animation-delay: 0.3s; }
+
+    .tech-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tech-pill {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,215,0,0.15);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #bbb;
+      transition: all 0.2s;
+    }
+
+    .tech-pill:hover {
+      background: rgba(255,215,0,0.1);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── Divider ── */
+    .divider-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #000;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      padding: 12px 26px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 18px rgba(255,215,0,0.35);
+      animation: cardIn 0.5s ease 0.4s both;
+    }
+
+    .back-btn:hover {
+      background: #ffe44d;
+      box-shadow: 0 0 30px rgba(255,215,0,0.6);
+      transform: translateY(-2px);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .features-grid   { grid-template-columns: 1fr; }
+      .profile-card    { flex-direction: column; text-align: center; }
+      .profile-info    { text-align: center; }
+      .profile-uni     { justify-content: center; }
+      .profile-name    { font-size: 18px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <h1>SOUND<span class="accent">BOARD</span> <span class="version">X</span></h1>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html"      class="nav-link">🎵 Soundboard</a>
+        <a href="record.html"     class="nav-link">🎙️ Record</a>
+        <a href="recordings.html" class="nav-link">📂 My Recordings</a>
+        <a href="about.html"      class="nav-link active">👤 About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="display:block; padding:0;">
+    <div class="page-wrapper">
+
+      <!-- ── Profile ── -->
+      <div class="card profile-card">
+        <div class="avatar">🎧</div>
+        <div class="profile-info">
+          <p class="profile-name">Kyaw Zin Hein</p>
+          <p class="profile-role"> Student &nbsp;·&nbsp; SoundBoard X Creator</p>
+          <div class="profile-uni">
+            🎓 &nbsp;EDINBURGH NAPIER UNIVERSITY
+          </div>
+        </div>
+      </div>
+
+      <div class="divider-line"></div>
+
+      <!-- ── About the Project ── -->
+      <div class="card project-card">
+        <div class="project-header">
+          <span class="project-icon">⬡</span>
+          <p class="project-title">ABOUT &nbsp;<span>SOUNDBOARD X</span></p>
+        </div>
+        <p class="project-desc">
+          SoundBoard X is an interactive browser-based soundboard built as part of a
+          Web Technologies coursework project. It lets you play, organise and record sounds
+          across multiple categories — all inside a single modern web application with no
+          plugins or downloads required.
+        </p>
+      </div>
+
+      <!-- ── Key Features ── -->
+      <div class="card features-card">
+        <p class="card-title">⚡ KEY FEATURES</p>
+        <div class="features-grid">
+
+          <div class="feature-item" style="animation-delay:0.05s">
+            <span class="feature-emoji">🎵</span>
+            <div>
+              <p class="feature-name">MULTI-CATEGORY SOUNDS</p>
+              <p class="feature-desc">5 categories — Anime, Phrase, Laugh, Music and Games — each with up to 12 sounds.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.1s">
+            <span class="feature-emoji">🎙️</span>
+            <div>
+              <p class="feature-name">VOICE RECORDER</p>
+              <p class="feature-desc">Record your own voice with a live waveform display and instant preview before saving.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.15s">
+            <span class="feature-emoji">📂</span>
+            <div>
+              <p class="feature-name">MY RECORDINGS</p>
+              <p class="feature-desc">Save, rename, play back and download recordings. Stored with IndexedDB — no upload needed.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.2s">
+            <span class="feature-emoji">⭐</span>
+            <div>
+              <p class="feature-name">FAVOURITES SYSTEM</p>
+              <p class="feature-desc">Star your favourite sounds and filter the board to show only favourites with one click.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.25s">
+            <span class="feature-emoji">🔍</span>
+            <div>
+              <p class="feature-name">LIVE SEARCH</p>
+              <p class="feature-desc">Instantly filter sound buttons by name as you type in the search bar.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.3s">
+            <span class="feature-emoji">📊</span>
+            <div>
+              <p class="feature-name">AUDIO VISUALIZER</p>
+              <p class="feature-desc">Real-time frequency bar visualizer using the Web Audio API that reacts to every sound.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.35s">
+            <span class="feature-emoji">⚡</span>
+            <div>
+              <p class="feature-name">PLAYBACK CONTROLS</p>
+              <p class="feature-desc">Play, pause, stop, replay, loop and adjust playback speed from 0.5× up to 2×.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.4s">
+            <span class="feature-emoji">⌨️</span>
+            <div>
+              <p class="feature-name">KEYBOARD SHORTCUTS</p>
+              <p class="feature-desc">Control playback hands-free with Space, arrow keys, R to replay and L to toggle loop.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.45s">
+            <span class="feature-emoji">✨</span>
+            <div>
+              <p class="feature-name">PARTICLE ANIMATIONS</p>
+              <p class="feature-desc">Gold particle burst and ripple effects trigger on every sound button click.</p>
+            </div>
+          </div>
+
+          <div class="feature-item" style="animation-delay:0.5s">
+            <span class="feature-emoji">🌊</span>
+            <div>
+              <p class="feature-name">ANIMATED BACKGROUND</p>
+              <p class="feature-desc">Canvas-powered background with floating orbs, sine waves and a gold grid overlay.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Tech Stack ── -->
+      <div class="card tech-card">
+        <p class="card-title">🛠 BUILT WITH</p>
+        <div class="tech-pills">
+          <span class="tech-pill">HTML5</span>
+          <span class="tech-pill">CSS3</span>
+          <span class="tech-pill">JavaScript ES6+</span>
+          <span class="tech-pill">Web Audio API</span>
+          <span class="tech-pill">MediaRecorder API</span>
+          <span class="tech-pill">IndexedDB</span>
+          <span class="tech-pill">Canvas API</span>
+          <span class="tech-pill">localStorage</span>
+          <span class="tech-pill">Orbitron Font</span>
+          <span class="tech-pill">Rajdhani Font</span>
+        </div>
+      </div>
+
+      <!-- ── Back Button ── -->
+      <a href="index.html" class="back-btn">🎵 &nbsp; GO TO SOUNDBOARD</a>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>SoundBoard X &mdash; Created by [Your Name] &mdash; Web Technologies Coursework</p>
+  </footer>
+
+  <script src="shared.js"></script>
+</body>
+</html>

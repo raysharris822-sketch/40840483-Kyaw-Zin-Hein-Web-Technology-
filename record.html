@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Record — SoundBoard X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 16px 24px;
+      gap: 24px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--muted);
+    }
+
+    .record-card {
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px 28px;
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+
+    #waveCanvas {
+      width: 100%;
+      height: 80px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    .rec-timer {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(255,215,0,0.3);
+    }
+
+    .rec-timer.recording {
+      color: #ff4d4d;
+      text-shadow: 0 0 20px rgba(255,77,77,0.5);
+      animation: timerPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes timerPulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.55; }
+    }
+
+    .record-btn-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .record-ring {
+      position: absolute;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,215,0,0.2);
+      animation: ringIdle 3s ease-in-out infinite;
+    }
+
+    .record-ring:nth-child(2) {
+      width: 132px; height: 132px;
+      border-color: rgba(255,215,0,0.1);
+      animation-delay: 0.5s;
+    }
+
+    @keyframes ringIdle {
+      0%,100% { transform: scale(1);    opacity: 0.6; }
+      50%      { transform: scale(1.05); opacity: 1;   }
+    }
+
+    .record-ring.active {
+      border-color: rgba(255,77,77,0.55);
+      animation: ringPulse 0.8s ease-in-out infinite;
+    }
+
+    .record-ring.active:nth-child(2) {
+      border-color: rgba(255,77,77,0.25);
+      animation-delay: 0.2s;
+    }
+
+    @keyframes ringPulse {
+      0%,100% { transform: scale(1);    opacity: 1;   }
+      50%      { transform: scale(1.13); opacity: 0.5; }
+    }
+
+    #recordBtn {
+      position: relative;
+      z-index: 2;
+      width: 88px; height: 88px;
+      border-radius: 50%;
+      border: 3px solid var(--gold);
+      background: radial-gradient(circle at 40% 35%, #3a2800, #1a1000);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 20px rgba(255,215,0,0.25), inset 0 0 16px rgba(0,0,0,0.5);
+    }
+
+    #recordBtn:hover {
+      box-shadow: 0 0 34px rgba(255,215,0,0.5), inset 0 0 16px rgba(0,0,0,0.5);
+      transform: scale(1.05);
+    }
+
+    #recordBtn.recording {
+      border-color: #ff4d4d;
+      box-shadow: 0 0 32px rgba(255,77,77,0.55), inset 0 0 16px rgba(0,0,0,0.5);
+    }
+
+    .rec-status {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    .rec-status.recording { color: #ff4d4d; }
+    .rec-status.done      { color: var(--gold); }
+
+    .name-input {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 14px;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .name-input::placeholder { color: var(--muted); }
+
+    .name-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(255,215,0,0.2);
+    }
+
+    .action-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: #ccc;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      border-color: rgba(255,215,0,0.4);
+      color: #fff;
+      background: rgba(255,215,0,0.08);
+    }
+
+    .action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .action-btn.save {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      font-weight: 900;
+      box-shadow: 0 0 16px rgba(255,215,0,0.35);
+    }
+
+    .action-btn.save:hover:not(:disabled) {
+      background: #ffe44d;
+      box-shadow: 0 0 28px rgba(255,215,0,0.6);
+      transform: translateY(-1px);
+    }
+
+    .preview-section {
+      width: 100%;
+      background: rgba(255,215,0,0.05);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .preview-section.visible { display: flex; }
+
+    .preview-label {
+      font-family: var(--font-display);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--gold);
+    }
+
+    .preview-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-play {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: none;
+      color: #000;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .preview-play:hover { background: #ffe44d; transform: scale(1.08); }
+
+    .preview-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .preview-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+      width: 0%;
+      transition: width 0.2s linear;
+      border-radius: 4px;
+    }
+
+    .preview-time {
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--muted);
+      min-width: 36px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255,215,0,0.12);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 30px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      backdrop-filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .tips {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .tips span { color: var(--gold); font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+  <div id="toast" class="toast"></div>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <h1>SOUND<span class="accent">BOARD</span> <span class="version">X</span></h1>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html"      class="nav-link">🎵 Soundboard</a>
+        <a href="record.html"     class="nav-link active">🎙️ Record</a>
+        <a href="recordings.html" class="nav-link">📂 My Recordings</a>
+        <a href="about.html"      class="nav-link">👤 About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+    <p class="page-title">🎙️ Voice Recorder</p>
+
+    <div class="record-card">
+      <canvas id="waveCanvas"></canvas>
+      <div class="rec-timer" id="recTimer">0:00</div>
+
+      <div class="record-btn-wrap">
+        <div class="record-ring" id="ring1"></div>
+        <div class="record-ring" id="ring2"></div>
+        <button id="recordBtn">🎙️</button>
+      </div>
+
+      <p class="rec-status" id="recStatus">PRESS TO RECORD</p>
+
+      <div class="preview-section" id="previewSection">
+        <p class="preview-label">▶ PREVIEW RECORDING</p>
+        <div class="preview-controls">
+          <button class="preview-play" id="previewPlay">▶</button>
+          <div class="preview-track">
+            <div class="preview-fill" id="previewFill"></div>
+          </div>
+          <span class="preview-time" id="previewTime">0:00</span>
+        </div>
+      </div>
+
+      <input type="text" class="name-input" id="recName"
+        placeholder="Name your recording (e.g. My Intro)" maxlength="40" />
+
+      <div class="action-row">
+        <button class="action-btn" id="discardBtn" disabled>🗑️ DISCARD</button>
+        <button class="action-btn save" id="saveBtn" disabled>💾 SAVE</button>
+      </div>
+    </div>
+
+    <p class="tips">
+      <span>Click the mic</span> to start recording · Click again to <span>stop</span><br/>
+      Preview it · Name it · Hit <span>Save</span> → then visit 📂 My Recordings
+    </p>
+  </main>
+
+  <footer>
+    <p>SoundBoard X &mdash; Created by [Your Name] &mdash; Web Technologies Coursework</p>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script>
+    /* ============================================================
+       IndexedDB — stores Blob directly (no 5MB localStorage limit)
+    ============================================================ */
+    const DB_NAME    = "soundboardXDB";
+    const DB_VER     = 1;
+    const STORE      = "recordings";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            db.createObjectStore(STORE, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror   = e => reject(e.target.error);
+      });
+    }
+
+    async function saveRecToDB(record) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx    = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).put(record);
+        tx.oncomplete = resolve;
+        tx.onerror    = () => reject(tx.error);
+      });
+    }
+
+    /* ============================================================
+       State
+    ============================================================ */
+    let mediaRecorder = null;
+    let audioChunks   = [];
+    let isRecording   = false;
+    let recordedBlob  = null;
+    let previewAudio  = null;
+    let timerInterval = null;
+    let elapsedSecs   = 0;
+    let micStream     = null;
+    let analyserNode  = null;
+    let audioCtxRec   = null;
+    let waveAnimId    = null;
+
+    // DOM
+    const recordBtn      = document.getElementById("recordBtn");
+    const recTimer       = document.getElementById("recTimer");
+    const recStatus      = document.getElementById("recStatus");
+    const ring1          = document.getElementById("ring1");
+    const ring2          = document.getElementById("ring2");
+    const previewSection = document.getElementById("previewSection");
+    const previewPlay    = document.getElementById("previewPlay");
+    const previewFill    = document.getElementById("previewFill");
+    const previewTime    = document.getElementById("previewTime");
+    const recName        = document.getElementById("recName");
+    const discardBtn     = document.getElementById("discardBtn");
+    const saveBtn        = document.getElementById("saveBtn");
+    const waveCanvas     = document.getElementById("waveCanvas");
+    const waveCtx        = waveCanvas.getContext("2d");
+    const toastEl        = document.getElementById("toast");
+
+    // Toast
+    let toastTO;
+    function showToast(msg) {
+      clearTimeout(toastTO);
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      toastTO = setTimeout(() => toastEl.classList.remove("show"), 2600);
+    }
+
+    // Timer
+    function startTimer() {
+      elapsedSecs = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => { elapsedSecs++; updateTimerDisplay(); }, 1000);
+    }
+    function stopTimer() { clearInterval(timerInterval); }
+    function updateTimerDisplay() {
+      const m = Math.floor(elapsedSecs / 60);
+      const s = elapsedSecs % 60;
+      recTimer.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+    }
+
+    // Waveform
+    function resizeWave() {
+      waveCanvas.width  = waveCanvas.offsetWidth;
+      waveCanvas.height = waveCanvas.offsetHeight;
+    }
+    resizeWave();
+    window.addEventListener("resize", resizeWave);
+
+    function drawIdleWave() {
+      resizeWave();
+      waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+      const t = Date.now() / 1000;
+      waveCtx.strokeStyle = "rgba(255,215,0,0.2)";
+      waveCtx.lineWidth   = 1.5;
+      waveCtx.beginPath();
+      for (let x = 0; x < waveCanvas.width; x++) {
+        const y = waveCanvas.height / 2 + Math.sin(x * 0.04 + t) * 6;
+        x === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+      }
+      waveCtx.stroke();
+      if (!isRecording) waveAnimId = requestAnimationFrame(drawIdleWave);
+    }
+    drawIdleWave();
+
+    function drawLiveWave() {
+      if (!analyserNode) return;
+      waveAnimId = requestAnimationFrame(drawLiveWave);
+      resizeWave();
+      const buf  = new Uint8Array(analyserNode.fftSize);
+      analyserNode.getByteTimeDomainData(buf);
+      waveCtx.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
+      waveCtx.strokeStyle = "#ff4d4d";
+      waveCtx.lineWidth   = 2;
+      waveCtx.shadowBlur  = 8;
+      waveCtx.shadowColor = "rgba(255,77,77,0.6)";
+      waveCtx.beginPath();
+      const sw = waveCanvas.width / buf.length;
+      let xp = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const y = (buf[i] / 128.0 * waveCanvas.height) / 2;
+        i === 0 ? waveCtx.moveTo(xp, y) : waveCtx.lineTo(xp, y);
+        xp += sw;
+      }
+      waveCtx.stroke();
+      waveCtx.shadowBlur = 0;
+    }
+
+    // Reset
+    function resetUI() {
+      recordedBlob = null;
+      if (previewAudio) { previewAudio.pause(); previewAudio = null; }
+      previewSection.classList.remove("visible");
+      saveBtn.disabled    = true;
+      discardBtn.disabled = true;
+      recName.value       = "";
+      elapsedSecs         = 0;
+      recTimer.textContent  = "0:00";
+      recTimer.classList.remove("recording");
+      recStatus.textContent = "PRESS TO RECORD";
+      recStatus.className   = "rec-status";
+      previewPlay.textContent = "▶";
+      previewFill.style.width = "0%";
+      previewTime.textContent = "0:00";
+    }
+
+    /* ============================================================
+       Record Button
+    ============================================================ */
+    recordBtn.addEventListener("click", async () => {
+
+      if (!isRecording) {
+        // --- START RECORDING ---
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+          showToast("⚠️ Microphone blocked! Allow mic access in your browser.");
+          return;
+        }
+
+        // Live analyser
+        audioCtxRec  = new (window.AudioContext || window.webkitAudioContext)();
+        analyserNode = audioCtxRec.createAnalyser();
+        analyserNode.fftSize = 2048;
+        audioCtxRec.createMediaStreamSource(micStream).connect(analyserNode);
+
+        // Pick best mime type
+        const mime = ["audio/webm;codecs=opus","audio/webm","audio/ogg","audio/mp4"]
+          .find(t => MediaRecorder.isTypeSupported(t)) || "";
+
+        mediaRecorder = new MediaRecorder(micStream, mime ? { mimeType: mime } : {});
+        audioChunks   = [];
+
+        mediaRecorder.ondataavailable = e => {
+          if (e.data && e.data.size > 0) audioChunks.push(e.data);
+        };
+
+        mediaRecorder.onstop = () => {
+          recordedBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+          previewAudio = new Audio(URL.createObjectURL(recordedBlob));
+          previewAudio.onended = () => { previewPlay.textContent = "▶"; };
+
+          previewSection.classList.add("visible");
+          saveBtn.disabled    = false;
+          discardBtn.disabled = false;
+          recStatus.textContent = "RECORDING DONE ✔";
+          recStatus.className   = "rec-status done";
+          showToast("✅ Done! Preview it then hit SAVE.");
+
+          cancelAnimationFrame(waveAnimId);
+          analyserNode = null;
+          if (audioCtxRec) { audioCtxRec.close(); audioCtxRec = null; }
+          drawIdleWave();
+        };
+
+        mediaRecorder.start(100);
+        isRecording = true;
+        startTimer();
+        cancelAnimationFrame(waveAnimId);
+        drawLiveWave();
+
+        recordBtn.textContent = "⏹";
+        recordBtn.classList.add("recording");
+        recTimer.classList.add("recording");
+        recStatus.textContent = "● RECORDING...";
+        recStatus.className   = "rec-status recording";
+        ring1.classList.add("active");
+        ring2.classList.add("active");
+        previewSection.classList.remove("visible");
+
+      } else {
+        // --- STOP RECORDING ---
+        if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+        if (micStream) micStream.getTracks().forEach(t => t.stop());
+        isRecording = false;
+        stopTimer();
+        recordBtn.textContent = "🎙️";
+        recordBtn.classList.remove("recording");
+        recTimer.classList.remove("recording");
+        ring1.classList.remove("active");
+        ring2.classList.remove("active");
+      }
+    });
+
+    // Preview controls
+    previewPlay.addEventListener("click", () => {
+      if (!previewAudio) return;
+      if (previewAudio.paused) {
+        previewAudio.play();
+        previewPlay.textContent = "⏸";
+      } else {
+        previewAudio.pause();
+        previewPlay.textContent = "▶";
+      }
+    });
+
+    setInterval(() => {
+      if (!previewAudio || isNaN(previewAudio.duration)) return;
+      const pct = (previewAudio.currentTime / previewAudio.duration) * 100;
+      previewFill.style.width = `${pct || 0}%`;
+      const s = Math.floor(previewAudio.currentTime);
+      previewTime.textContent = `${Math.floor(s/60)}:${(s%60).toString().padStart(2,"0")}`;
+    }, 200);
+
+    // Save
+    saveBtn.addEventListener("click", async () => {
+      if (!recordedBlob) { showToast("⚠️ Nothing to save!"); return; }
+      const name = recName.value.trim() || `Recording ${new Date().toLocaleTimeString()}`;
+      const rec  = {
+        id:       Date.now(),
+        name:     name,
+        date:     new Date().toLocaleDateString(),
+        duration: elapsedSecs,
+        blob:     recordedBlob,
+        mimeType: recordedBlob.type
+      };
+      try {
+        await saveRecToDB(rec);
+        showToast(`💾 "${name}" saved! Go to 📂 My Recordings to play it.`);
+        resetUI();
+      } catch (err) {
+        console.error("Save error:", err);
+        showToast("❌ Save failed. Check browser console for details.");
+      }
+    });
+
+    // Discard
+    discardBtn.addEventListener("click", () => {
+      if (previewAudio) previewAudio.pause();
+      resetUI();
+      showToast("🗑️ Recording discarded");
+    });
+  </script>
+</body>
+</html>

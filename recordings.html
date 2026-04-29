@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Recordings — SoundBoard X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    .page-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 16px 24px;
+      gap: 18px;
+    }
+
+    /* ── Top row ── */
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 700px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--muted);
+    }
+
+    .rec-count {
+      font-family: var(--font-display);
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    .clear-all-btn {
+      background: rgba(255,77,77,0.1);
+      border: 1px solid rgba(255,77,77,0.3);
+      border-radius: 8px;
+      color: #ff6b6b;
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-all-btn:hover {
+      background: rgba(255,77,77,0.2);
+      border-color: #ff4d4d;
+    }
+
+    /* ── Search ── */
+    .search-wrap {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 8px 16px;
+      gap: 8px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .search-wrap:focus-within {
+      border-color: var(--gold);
+      box-shadow: 0 0 12px rgba(255,215,0,0.2);
+    }
+
+    .search-wrap input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    /* ── List ── */
+    .recordings-list {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 52px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .empty-icon  { font-size: 52px; opacity: 0.35; }
+
+    .empty-text {
+      font-family: var(--font-display);
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    .empty-link {
+      display: inline-block;
+      background: var(--gold);
+      color: #000;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      padding: 10px 22px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 16px rgba(255,215,0,0.35);
+    }
+
+    .empty-link:hover {
+      background: #ffe44d;
+      box-shadow: 0 0 28px rgba(255,215,0,0.6);
+      transform: translateY(-1px);
+    }
+
+    /* ── Recording Card ── */
+    .rec-card {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      animation: cardIn 0.35s ease both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .rec-card:hover { border-color: rgba(255,215,0,0.25); }
+
+    .rec-card.playing {
+      border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(255,215,0,0.2);
+    }
+
+    /* Card top row */
+    .card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-index {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 900;
+      color: rgba(255,215,0,0.18);
+      min-width: 28px;
+    }
+
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-name-input {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(255,215,0,0.08);
+      border: 1px solid var(--gold);
+      border-radius: 6px;
+      padding: 3px 8px;
+      outline: none;
+      width: 100%;
+    }
+
+    .card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-body);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .card-btn {
+      width: 33px; height: 33px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: #aaa;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .card-btn:hover {
+      border-color: rgba(255,215,0,0.4);
+      color: #fff;
+      background: rgba(255,215,0,0.08);
+    }
+
+    .card-btn.play-btn {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+      box-shadow: 0 0 10px rgba(255,215,0,0.3);
+    }
+
+    .card-btn.play-btn:hover {
+      background: #ffe44d;
+      box-shadow: 0 0 18px rgba(255,215,0,0.5);
+    }
+
+    .card-btn.delete-btn:hover {
+      background: rgba(255,77,77,0.15);
+      border-color: #ff4d4d;
+      color: #ff6b6b;
+    }
+
+    /* Progress bar */
+    .card-progress {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+      width: 0%;
+      transition: width 0.2s linear;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .card-time {
+      font-family: var(--font-display);
+      font-size: 10px;
+      color: var(--muted);
+      min-width: 70px;
+      text-align: right;
+    }
+
+    /* Bottom row */
+    .bottom-row {
+      width: 100%;
+      max-width: 700px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .download-all {
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 10px;
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .download-all:hover {
+      background: rgba(255,215,0,0.15);
+      border-color: var(--gold);
+      box-shadow: 0 0 14px rgba(255,215,0,0.2);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(255,215,0,0.12);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 20px;
+      border-radius: 30px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+      backdrop-filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+  <div id="toast" class="toast"></div>
+
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <h1>SOUND<span class="accent">BOARD</span> <span class="version">X</span></h1>
+      </div>
+      <nav class="top-nav">
+        <a href="index.html"      class="nav-link">🎵 Soundboard</a>
+        <a href="record.html"     class="nav-link">🎙️ Record</a>
+        <a href="recordings.html" class="nav-link active">📂 My Recordings</a>
+        <a href="about.html"      class="nav-link">👤 About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-wrapper">
+
+    <div class="top-row">
+      <p class="page-title">📂 My Recordings</p>
+      <span class="rec-count" id="recCount">0 recordings</span>
+      <button class="clear-all-btn" id="clearAllBtn">🗑 CLEAR ALL</button>
+    </div>
+
+    <div class="search-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by name..." />
+    </div>
+
+    <div class="recordings-list" id="recList">
+      <div class="empty-state">
+        <div class="empty-icon">⏳</div>
+        <p class="empty-text">LOADING RECORDINGS...</p>
+      </div>
+    </div>
+
+    <div class="bottom-row" id="bottomRow" style="display:none">
+      <button class="download-all" id="downloadAllBtn">⬇ DOWNLOAD ALL</button>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>SoundBoard X &mdash; Created by [Your Name] &mdash; Web Technologies Coursework</p>
+  </footer>
+
+  <script src="shared.js"></script>
+  <script>
+    /* ============================================================
+       IndexedDB helpers
+    ============================================================ */
+    const DB_NAME = "soundboardXDB";
+    const DB_VER  = 1;
+    const STORE   = "recordings";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            db.createObjectStore(STORE, { keyPath: "id" });
+          }
+        };
+        req.onsuccess = e => resolve(e.target.result);
+        req.onerror   = e => reject(e.target.error);
+      });
+    }
+
+    async function getAllRecs() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx    = db.transaction(STORE, "readonly");
+        const req   = tx.objectStore(STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror   = () => reject(req.error);
+      });
+    }
+
+    async function deleteRec(id) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror    = () => reject(tx.error);
+      });
+    }
+
+    async function deleteAllRecs() {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, "readwrite");
+        tx.objectStore(STORE).clear();
+        tx.oncomplete = resolve;
+        tx.onerror    = () => reject(tx.error);
+      });
+    }
+
+    async function updateRecName(id, newName) {
+      const db = await openDB();
+      return new Promise((resolve, reject) => {
+        const tx    = db.transaction(STORE, "readwrite");
+        const store = tx.objectStore(STORE);
+        const getReq = store.get(id);
+        getReq.onsuccess = () => {
+          const rec  = getReq.result;
+          rec.name   = newName;
+          store.put(rec);
+        };
+        tx.oncomplete = resolve;
+        tx.onerror    = () => reject(tx.error);
+      });
+    }
+
+    /* ============================================================
+       App State
+    ============================================================ */
+    let recordings  = [];
+    let activeAudio = null;
+    let activeId    = null;
+
+    const recList        = document.getElementById("recList");
+    const recCountEl     = document.getElementById("recCount");
+    const searchInput    = document.getElementById("searchInput");
+    const clearAllBtn    = document.getElementById("clearAllBtn");
+    const downloadAllBtn = document.getElementById("downloadAllBtn");
+    const bottomRow      = document.getElementById("bottomRow");
+    const toastEl        = document.getElementById("toast");
+
+    // Toast
+    let toastTO;
+    function showToast(msg) {
+      clearTimeout(toastTO);
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      toastTO = setTimeout(() => toastEl.classList.remove("show"), 2400);
+    }
+
+    function formatTime(secs) {
+      if (!secs || isNaN(secs)) return "0:00";
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s.toString().padStart(2,"0")}`;
+    }
+
+    /* ============================================================
+       Load & Render
+    ============================================================ */
+    async function loadRecordings() {
+      try {
+        recordings = await getAllRecs();
+        // Sort newest first
+        recordings.sort((a, b) => b.id - a.id);
+      } catch (err) {
+        console.error("Load error:", err);
+        recordings = [];
+      }
+      renderList();
+    }
+
+    function renderList() {
+      const query    = searchInput.value.toLowerCase().trim();
+      const filtered = recordings.filter(r =>
+        r.name.toLowerCase().includes(query)
+      );
+
+      recCountEl.textContent       = `${recordings.length} recording${recordings.length !== 1 ? "s" : ""}`;
+      bottomRow.style.display      = recordings.length > 0 ? "flex" : "none";
+      recList.innerHTML            = "";
+
+      if (filtered.length === 0) {
+        recList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🎙️</div>
+            <p class="empty-text">${recordings.length === 0 ? "NO RECORDINGS YET" : "NO RESULTS FOUND"}</p>
+            ${recordings.length === 0
+              ? `<a href="record.html" class="empty-link">🎙️ START RECORDING</a>`
+              : ""}
+          </div>`;
+        return;
+      }
+
+      filtered.forEach((rec, idx) => {
+        const dur  = formatTime(rec.duration || 0);
+        const card = document.createElement("div");
+        card.classList.add("rec-card");
+        card.dataset.id = rec.id;
+        card.style.animationDelay = `${idx * 45}ms`;
+
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="card-left">
+              <span class="card-index">${String(idx + 1).padStart(2,"0")}</span>
+              <span class="card-name" id="cname-${rec.id}">${escHtml(rec.name)}</span>
+            </div>
+            <span class="card-meta">${rec.date} · ${dur}</span>
+            <div class="card-actions">
+              <button class="card-btn"        title="Rename"   data-action="rename"   data-id="${rec.id}">✏️</button>
+              <button class="card-btn"        title="Download" data-action="download" data-id="${rec.id}">⬇️</button>
+              <button class="card-btn play-btn" title="Play"   data-action="play"     data-id="${rec.id}" id="playbtn-${rec.id}">▶</button>
+              <button class="card-btn delete-btn" title="Delete" data-action="delete" data-id="${rec.id}">🗑️</button>
+            </div>
+          </div>
+          <div class="card-progress">
+            <div class="card-track" data-action="seek" data-id="${rec.id}">
+              <div class="card-fill" id="fill-${rec.id}"></div>
+            </div>
+            <span class="card-time" id="time-${rec.id}">0:00 / ${dur}</span>
+          </div>
+        `;
+        recList.appendChild(card);
+      });
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    /* ============================================================
+       Delegated click handler
+    ============================================================ */
+    recList.addEventListener("click", async e => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+
+      const action = btn.dataset.action;
+      const id     = parseInt(btn.dataset.id);
+      const rec    = recordings.find(r => r.id === id);
+
+      if (action === "play") {
+        handlePlay(id, rec);
+
+      } else if (action === "rename") {
+        handleRename(id, rec.name);
+
+      } else if (action === "download") {
+        if (!rec || !rec.blob) { showToast("⚠️ No audio data found."); return; }
+        const ext  = rec.mimeType && rec.mimeType.includes("ogg") ? "ogg"
+                   : rec.mimeType && rec.mimeType.includes("mp4") ? "m4a"
+                   : "webm";
+        const url  = URL.createObjectURL(rec.blob);
+        const a    = document.createElement("a");
+        a.href     = url;
+        a.download = `${rec.name.replace(/\s+/g,"_")}.${ext}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        showToast("⬇️ Downloading...");
+
+      } else if (action === "delete") {
+        if (activeId === id && activeAudio) {
+          activeAudio.pause();
+          activeAudio = null;
+          activeId    = null;
+        }
+        await deleteRec(id);
+        showToast("🗑️ Recording deleted");
+        await loadRecordings();
+
+      } else if (action === "seek") {
+        if (!activeAudio || activeId !== id) return;
+        if (isNaN(activeAudio.duration)) return;
+        const track = btn;
+        const rect  = track.getBoundingClientRect();
+        const pct   = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        activeAudio.currentTime = pct * activeAudio.duration;
+      }
+    });
+
+    /* ============================================================
+       Play / Pause logic
+    ============================================================ */
+    function handlePlay(id, rec) {
+      if (!rec || !rec.blob) { showToast("⚠️ No audio data for this recording."); return; }
+
+      const playBtn = document.getElementById(`playbtn-${id}`);
+      const card    = document.querySelector(`.rec-card[data-id="${id}"]`);
+
+      // If same track — toggle pause/play
+      if (activeId === id && activeAudio) {
+        if (activeAudio.paused) {
+          activeAudio.play();
+          if (playBtn) playBtn.textContent = "⏸";
+          if (card)    card.classList.add("playing");
+        } else {
+          activeAudio.pause();
+          if (playBtn) playBtn.textContent = "▶";
+          if (card)    card.classList.remove("playing");
+        }
+        return;
+      }
+
+      // Stop previous
+      if (activeAudio) {
+        activeAudio.pause();
+        const oldBtn  = document.getElementById(`playbtn-${activeId}`);
+        const oldCard = document.querySelector(`.rec-card[data-id="${activeId}"]`);
+        const oldFill = document.getElementById(`fill-${activeId}`);
+        if (oldBtn)  oldBtn.textContent = "▶";
+        if (oldCard) oldCard.classList.remove("playing");
+        if (oldFill) oldFill.style.width = "0%";
+        activeAudio = null;
+        activeId    = null;
+      }
+
+      // Create new audio from Blob
+      const url   = URL.createObjectURL(rec.blob);
+      activeAudio = new Audio(url);
+      activeId    = id;
+
+      activeAudio.ontimeupdate = () => {
+        if (isNaN(activeAudio.duration)) return;
+        const pct  = (activeAudio.currentTime / activeAudio.duration) * 100;
+        const fill = document.getElementById(`fill-${id}`);
+        const time = document.getElementById(`time-${id}`);
+        if (fill) fill.style.width = `${pct}%`;
+        if (time) time.textContent =
+          `${formatTime(activeAudio.currentTime)} / ${formatTime(activeAudio.duration)}`;
+      };
+
+      activeAudio.onended = () => {
+        const btn  = document.getElementById(`playbtn-${id}`);
+        const card = document.querySelector(`.rec-card[data-id="${id}"]`);
+        const fill = document.getElementById(`fill-${id}`);
+        if (btn)  btn.textContent = "▶";
+        if (card) card.classList.remove("playing");
+        if (fill) fill.style.width = "0%";
+        URL.revokeObjectURL(url);
+        activeAudio = null;
+        activeId    = null;
+      };
+
+      activeAudio.play().catch(err => {
+        console.error("Playback error:", err);
+        showToast("⚠️ Could not play. Try re-recording.");
+      });
+
+      if (playBtn) playBtn.textContent = "⏸";
+      if (card)    card.classList.add("playing");
+    }
+
+    /* ============================================================
+       Rename
+    ============================================================ */
+    function handleRename(id, currentName) {
+      const nameEl = document.getElementById(`cname-${id}`);
+      if (!nameEl) return;
+
+      const input = document.createElement("input");
+      input.className = "card-name-input";
+      input.value     = currentName;
+      nameEl.replaceWith(input);
+      input.focus();
+      input.select();
+
+      async function commit() {
+        const newName = input.value.trim() || currentName;
+        try {
+          await updateRecName(id, newName);
+          const rec = recordings.find(r => r.id === id);
+          if (rec) rec.name = newName;
+        } catch (err) { console.error(err); }
+
+        const span = document.createElement("span");
+        span.className   = "card-name";
+        span.id          = `cname-${id}`;
+        span.textContent = newName;
+        input.replaceWith(span);
+        showToast("✏️ Renamed successfully!");
+      }
+
+      input.addEventListener("blur",    commit);
+      input.addEventListener("keydown", e => { if (e.key === "Enter") input.blur(); });
+    }
+
+    /* ============================================================
+       Clear All
+    ============================================================ */
+    clearAllBtn.addEventListener("click", async () => {
+      if (!recordings.length) { showToast("Nothing to clear!"); return; }
+      if (!confirm("Delete ALL recordings? This cannot be undone.")) return;
+      if (activeAudio) { activeAudio.pause(); activeAudio = null; activeId = null; }
+      await deleteAllRecs();
+      showToast("🗑️ All recordings cleared");
+      await loadRecordings();
+    });
+
+    /* ============================================================
+       Download All
+    ============================================================ */
+    downloadAllBtn.addEventListener("click", () => {
+      if (!recordings.length) return;
+      recordings.forEach(rec => {
+        if (!rec.blob) return;
+        const ext = rec.mimeType && rec.mimeType.includes("ogg") ? "ogg"
+                  : rec.mimeType && rec.mimeType.includes("mp4") ? "m4a"
+                  : "webm";
+        const url = URL.createObjectURL(rec.blob);
+        const a   = document.createElement("a");
+        a.href    = url;
+        a.download = `${rec.name.replace(/\s+/g,"_")}.${ext}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      });
+      showToast(`⬇️ Downloading ${recordings.length} recording(s)...`);
+    });
+
+    /* ============================================================
+       Search
+    ============================================================ */
+    searchInput.addEventListener("input", renderList);
+
+    /* ============================================================
+       Init
+    ============================================================ */
+    loadRecordings();
+
+    // Refresh when user comes back from record page
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) loadRecordings();
+    });
+  </script>
+</body>
+</html>

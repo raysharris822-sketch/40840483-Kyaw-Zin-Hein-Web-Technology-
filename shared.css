@@ -1,0 +1,152 @@
+/* ============================================================
+   shared.css — used by index.html, record.html, recordings.html
+============================================================ */
+
+:root {
+  --gold:     #ffd700;
+  --gold-dim: #c9a800;
+  --gold-glow: rgba(255, 215, 0, 0.35);
+  --bg:       #0a0800;
+  --surface:  rgba(255, 255, 255, 0.04);
+  --surface2: rgba(255, 255, 255, 0.09);
+  --border:   rgba(255, 215, 0, 0.1);
+  --text:     #f5f0e0;
+  --muted:    #7a6e50;
+  --font-display: 'Orbitron', monospace;
+  --font-body:    'Rajdhani', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+/* ── Animated Canvas Background ── */
+#bgCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+header, nav, main, section, footer, .search-bar-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Header ── */
+header {
+  background: linear-gradient(180deg, rgba(20,15,0,0.97) 0%, rgba(10,8,0,0.85) 100%);
+  border-bottom: 1px solid var(--gold);
+  padding: 12px 24px;
+  box-shadow: 0 0 30px rgba(255,215,0,0.12), inset 0 -1px 0 var(--gold);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  font-size: 24px;
+  color: var(--gold);
+  filter: drop-shadow(0 0 8px var(--gold));
+  animation: hexSpin 6s linear infinite;
+}
+
+@keyframes hexSpin {
+  to { transform: rotate(360deg); }
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255,215,0,0.4);
+}
+
+h1 .accent  { color: var(--gold); }
+h1 .version {
+  font-size: 11px;
+  color: var(--muted);
+  vertical-align: super;
+  margin-left: 3px;
+}
+
+/* ── Top Navigation ── */
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+}
+
+.nav-link {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 10px;
+  text-decoration: none;
+  transition: all 0.22s ease;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: #fff;
+  border-color: rgba(255,215,0,0.35);
+  background: rgba(255,215,0,0.06);
+}
+
+.nav-link.active {
+  background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(201,168,0,0.1));
+  color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(255,215,0,0.2);
+}
+
+/* ── Footer ── */
+footer {
+  background: rgba(0,0,0,0.8);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 6px;
+  font-size: 10px;
+  color: #333;
+  font-family: var(--font-body);
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  h1 { font-size: 14px; }
+  .nav-link { font-size: 9px; padding: 6px 10px; }
+}

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SoundBoard X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated Canvas Background (Video-style) -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Particle Container -->
+  <div id="particles"></div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <h1>SOUND<span class="accent">BOARD</span> <span class="version">X</span></h1>
+      </div>
+      <div class="header-meta">
+        <nav class="top-nav">
+          <a href="index.html"      class="nav-link active">🎵 Soundboard</a>
+          <a href="record.html"     class="nav-link">🎙️ Record</a>
+          <a href="recordings.html" class="nav-link">📂 My Recordings</a>
+          <a href="about.html"      class="nav-link">👤 About</a>
+        </nav>
+        <div class="eq-bars" id="eqBars">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="header-stats">
+          <span id="favCount">★ 0 favs</span>
+          <span class="divider">|</span>
+          <span id="playCount">▶ 0 plays</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="search-bar-wrapper">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search sounds..." />
+      <button id="clearSearch" class="clear-btn">✕</button>
+    </div>
+    <div class="feature-toggles">
+      <button id="loopBtn" class="toggle-btn" title="Loop">🔁 Loop</button>
+      <button id="favsOnlyBtn" class="toggle-btn" title="Show Favourites Only">★ Favs</button>
+    </div>
+  </div>
+
+  <!-- Category Menu -->
+  <nav class="category-menu">
+    <button class="category-btn active" data-category="anime">🌸 Anime</button>
+    <button class="category-btn" data-category="phrase">🗣️ Phrase</button>
+    <button class="category-btn" data-category="laugh">😂 Laugh</button>
+    <button class="category-btn" data-category="music">🎵 Music</button>
+    <button class="category-btn" data-category="game">🎮 Games</button>
+  </nav>
+
+  <!-- Soundboard Grid -->
+  <main>
+    <div class="soundboard-wrapper">
+      <div id="soundboard" class="soundboard"></div>
+    </div>
+  </main>
+
+  <!-- Player Controls -->
+  <section class="player-controls">
+
+    <!-- Visualizer Canvas -->
+    <canvas id="visualizer"></canvas>
+
+    <!-- Now Playing -->
+    <div class="now-playing-row">
+      <div class="spinning-disc" id="spinDisc">
+        <div class="disc-inner">🎵</div>
+      </div>
+      <div class="now-playing-info">
+        <p id="nowPlaying">No Sound Selected</p>
+        <p class="now-playing-sub" id="nowPlayingSub">Pick a category and press a button</p>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-wrapper">
+      <span id="currentTime">0:00</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+        <input type="range" id="progressBar" value="0" min="0" max="100" />
+      </div>
+      <span id="totalTime">0:00</span>
+    </div>
+
+    <!-- Buttons Row -->
+    <div class="control-row">
+      <div class="volume-group">
+        <span class="vol-icon">🔈</span>
+        <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1" />
+        <span class="vol-icon">🔊</span>
+        <span id="volPercent" class="vol-percent">100%</span>
+      </div>
+
+      <div class="playback-btns">
+        <button id="stopBtn" class="ctrl-btn" title="Stop">⏹</button>
+        <button id="playBtn" class="ctrl-btn primary" title="Play">▶</button>
+        <button id="pauseBtn" class="ctrl-btn" title="Pause">⏸</button>
+        <button id="replayBtn" class="ctrl-btn" title="Replay from Start">⏮</button>
+      </div>
+
+      <div class="speed-group">
+        <label>Speed</label>
+        <select id="speedSelect">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Keyboard Hints -->
+    <div class="keyboard-hints">
+      <span>⌨ <kbd>Space</kbd> Play/Pause</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> Volume</span>
+      <span><kbd>R</kbd> Replay</span>
+      <span><kbd>L</kbd> Loop</span>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>SoundBoard X &mdash; Created by [Your Name] &mdash; Web Technologies Coursework</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
